@@ -3,37 +3,37 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 
 const app = express();
+const PORT = process.env.PORT || 10000;
+
+// Middleware to parse URL-encoded and JSON bodies
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.post('/slack-interaction', async (req, res) => {
-  const payload = req.body;
-  const jobName = payload.jobName;
-
-  // Respond to Slack immediately to avoid timeout
-  res.send({
-    response_type: "ephemeral",
-    text: `✅ Received request to mark "${jobName}" complete. Processing...`
-  });
-
-  // Forward to Apps Script in the background
+// Endpoint to handle Slack button interactions
+app.post('/mark-complete', async (req, res) => {
   try {
-    await axios.post(
-      'https://script.google.com/macros/s/AKfycbxyoh5D_INucY3JmOBYg4t45kfvvWFXDCcg1XgoytEahN-oCbBUCR8qZgsRwvUvt0NB/exec',
-      { jobName: jobName },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    const payload = JSON.parse(req.body.payload);
+    const jobName = payload.actions[0].value;
+
+    // Forward jobName to your Apps Script endpoint
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbxyoh5D_INucY3JmOBYg4t45kfvvWFXDCcg1XgoytEahN-oCbBUCR8qZgsRwvUvt0NB/exec'; // Replace with your actual Apps Script URL
+
+    await axios.post(scriptUrl, null, {
+      params: { jobName }
+    });
+
+    res.status(200).send({ text: `✅ Job *${jobName}* marked complete.` });
   } catch (error) {
-    console.error("Error forwarding to Apps Script:", error.message);
+    console.error('Error marking job complete:', error);
+    res.status(500).send({ text: '❌ Failed to mark job complete.' });
   }
 });
 
+// Root endpoint for testing
 app.get('/', (req, res) => {
-  res.send('Render backend is running.');
+  res.send('Mark Job Complete service is running.');
 });
 
-app.listen(process.env.PORT || 3000);
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
