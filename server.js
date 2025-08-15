@@ -21,7 +21,7 @@ app.post('/mark-complete', (req, res) => {
     });
 
     // Forward jobName to your Apps Script endpoint asynchronously
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbxyoh5D_INucY3JmOBYg4t45kfvvWFXDCcg1XgoytEahN-oCbBUCR8qZgsRwvUvt0NB/exec';
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbyOQNCYrOpKsPJ4kgEBTqT6IrrpYTvNolswecOeeIggb5G0kbwhQVO8U5s-2IRZ2GPp/exec';
 
     axios.post(scriptUrl, null, {
       params: { jobName }
