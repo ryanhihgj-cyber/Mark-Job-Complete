@@ -1,0 +1,12 @@
+{
+  "name": "mark-job-complete",
+  "version": "1.0.0",
+  "description": "Google Apps Script project to mark jobs complete",
+  "main": "apps_script.js",
+  "scripts": {
+    "start": "echo 'No local server needed for Apps Script.'"
+  },
+  "author": "Ryan Harbin",
+  "license": "MIT",
+  "webAppUrl": "https://script.google.com/macros/s/AKfycbxyoh5D_INucY3JmOBYg4t45kfvvWFXDCcg1XgoytEahN-oCbBUCR8qZgsRwvUvt0NB/exec"
+}
