@@ -2,9 +2,9 @@
   "name": "mark-job-complete",
   "version": "1.0.0",
   "description": "Google Apps Script integration for marking jobs complete",
-  "main": "apps_script.js",
+  "main": "server.js",
   "scripts": {
-    "start": "echo \"No local server needed\""
+    "start": "node server.js"
   },
   "author": "Ryan Harbin",
   "license": "MIT",
