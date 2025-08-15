@@ -10,22 +10,30 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Endpoint to handle Slack button interactions
-app.post('/mark-complete', async (req, res) => {
+app.post('/mark-complete', (req, res) => {
   try {
     const payload = JSON.parse(req.body.payload);
     const jobName = payload.actions[0].value;
 
-    // Forward jobName to your Apps Script endpoint
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbxyoh5D_INucY3JmOBYg4t45kfvvWFXDCcg1XgoytEahN-oCbBUCR8qZgsRwvUvt0NB/exec'; // Replace with your actual Apps Script URL
-
-    await axios.post(scriptUrl, null, {
-      params: { jobName }
+    // Respond to Slack immediately to avoid timeout
+    res.status(200).send({
+      text: `✅ Marking *${jobName}* complete...`
     });
 
-    res.status(200).send({ text: `✅ Job *${jobName}* marked complete.` });
+    // Forward jobName to your Apps Script endpoint asynchronously
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbxyoh5D_INucY3JmOBYg4t45kfvvWFXDCcg1XgoytEahN-oCbBUCR8qZgsRwvUvt0NB/exec';
+
+    axios.post(scriptUrl, null, {
+      params: { jobName }
+    }).then(response => {
+      console.log(`Marked ${jobName} complete:`, response.data);
+    }).catch(error => {
+      console.error(`Failed to mark ${jobName} complete:`, error);
+    });
+
   } catch (error) {
-    console.error('Error marking job complete:', error);
-    res.status(500).send({ text: '❌ Failed to mark job complete.' });
+    console.error('Error parsing Slack payload:', error);
+    res.status(200).send({ text: '⚠️ Failed to process request.' });
   }
 });
 
