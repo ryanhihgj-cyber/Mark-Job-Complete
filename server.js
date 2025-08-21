@@ -5,39 +5,35 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Middleware to parse URL-encoded and JSON bodies
+// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Endpoint to handle Slack button interactions
-app.post('/mark-complete', (req, res) => {
+app.post('/mark-complete', async (req, res) => {
   try {
     const payload = JSON.parse(req.body.payload);
-    const jobName = payload.actions[0].value;
+    const rowIndex = payload.actions[0].value; // 👈 row index sent from GAS
 
-    // Respond to Slack immediately to avoid timeout
-    res.status(200).send({
-      text: `✅ Marking *${jobName}* complete...`
+    // Acknowledge Slack immediately
+    res.sendStatus(200);
+
+    // Update Slack message
+    await axios.post(payload.response_url, {
+      replace_original: true,
+      text: `✅ Job at row ${rowIndex} marked complete!`
     });
 
-    // Forward jobName to your Apps Script endpoint asynchronously
+    // Forward to GAS
     const scriptUrl = 'https://script.google.com/macros/s/AKfycbyOQNCYrOpKsPJ4kgEBTqT6IrrpYTvNolswecOeeIggb5G0kbwhQVO8U5s-2IRZ2GPp/exec';
-
-    axios.post(scriptUrl, null, {
-      params: { jobName }
-    }).then(response => {
-      console.log(`Marked ${jobName} complete:`, response.data);
-    }).catch(error => {
-      console.error(`Failed to mark ${jobName} complete:`, error);
-    });
+    const response = await axios.post(scriptUrl, { rowIndex });
+    console.log('GAS response:', response.data);
 
   } catch (error) {
-    console.error('Error parsing Slack payload:', error);
-    res.status(200).send({ text: '⚠️ Failed to process request.' });
+    console.error('Error handling Slack payload:', error);
+    res.sendStatus(200);
   }
 });
 
-// Root endpoint for testing
 app.get('/', (req, res) => {
   res.send('Mark Job Complete service is running.');
 });
