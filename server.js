@@ -17,12 +17,6 @@ app.post('/mark-complete', async (req, res) => {
     // Acknowledge Slack immediately
     res.sendStatus(200);
 
-    // Update Slack message
-    await axios.post(payload.response_url, {
-      replace_original: true,
-      text: `✅ Job at row ${rowIndex} marked complete!`
-    });
-
     // Forward to Google Apps Script
     const scriptUrl = 'https://script.google.com/macros/s/AKfycbyOQNCYrOpKsPJ4kgEBTqT6IrrpYTvNolswecOeeIggb5G0kbwhQVO8U5s-2IRZ2GPp/exec';
     const response = await axios.post(scriptUrl, { rowIndex });
