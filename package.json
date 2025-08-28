@@ -1,14 +1,14 @@
 {
-  "name": "mark-job-complete-server",
+  "name": "express-server-project",
   "version": "1.0.0",
-  "description": "Express server for Slack button integration with Google Apps Script",
+  "description": "Express server to receive POST requests from Google Apps Script",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "body-parser": "^1.20.2",
-    "axios": "^1.6.7"
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
   }
 }
