@@ -8,7 +8,7 @@
   },
   "author": "Ryan Harbin",
   "license": "MIT",
-  "webAppUrl": "https://script.google.com/macros/s/AKfycbyOQNCYrOpKsPJ4kgEBTqT6IrrpYTvNolswecOeeIggb5G0kbwhQVO8U5s-2IRZ2GPp/exec",
+  "webAppUrl": "https://script.google.com/macros/s/AKfycbzSOCoHZg7BSi0KfUsIiQptsBfmzVdb0rJvD9m5rqttLp4GHkB2A5Uai8xxYABUZ78tMA/exec",
   "renderEndpoint": "https://mark-job-complete.onrender.com",
   "dependencies": {
     "express": "^4.18.2",
