@@ -3,17 +3,29 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 
 const app = express();
-app.use(bodyParser.json());
+app://script.google.com/macros/s/AKfycbzSOCoHZg7BSi0KfUsIiQptsBfmzVdb0rJvD9m5rqttLp4GHkB2A5Uai8xxYABUZ78tMA/exec';
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAkfV8LUEW21rWN_EbomVbJTmeaQORTElHEgyV2aWxElj9xVbN-du2haOB3rEn5Ay7QQ/exec';
+app.post('/slack/actions', async (req, res) => {
+  const payload = JSON.parse(req.body.payload);
+  const rowIndex = payload.actions[0].value; // assuming value contains rowIndex
+  const responseUrl = payload.response_url;
 
-app.post('/mark-complete', async (req, res) => {
+  // ✅ Respond immediately to Slack
+  res.status(200).send();
+
   try {
-    const response = await axios.post(GOOGLE_SCRIPT_URL, req.body);
-    res.json(response.data);
+    // 🔁 Forward to Google Apps Script
+    await axios.post(GOOGLE_SCRIPT_URL, { rowIndex });
+
+    // ✅ Send follow-up message to Slack
+    await axios.post(responseUrl, {
+      text: `✅ Job marked complete for row ${rowIndex}`
+    });
   } catch (error) {
-    console.error('Error forwarding to Google Apps Script:', error.message);
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Error:', error.message);
+    await axios.post(responseUrl, {
+      text: `❌ Failed to mark job complete: ${error.message}`
+    });
   }
 });
 
