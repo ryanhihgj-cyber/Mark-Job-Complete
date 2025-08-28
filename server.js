@@ -14,27 +14,35 @@ app.post('/slack/actions', async (req, res) => {
     const rowIndex = payload.actions[0].value;
     const responseUrl = payload.response_url;
 
-    // ✅ Respond immediately to Slack to avoid timeout
-    res.status(200).send(); // This keeps the original message intact
+    // ✅ Respond immediately to Slack to keep buttons visible
+    res.status(200).send();
 
     // 🔁 Forward to Google Apps Script
-    await axios.post(GOOGLE_SCRIPT_URL, { rowIndex });
+    const scriptResponse = await axios.post(GOOGLE_SCRIPT_URL, { rowIndex });
 
-    // ✅ Send a follow-up message (ephemeral or public)
-    await axios.post(responseUrl, {
-      response_type: "ephemeral", // or "in_channel" to make it public
-      text: `✅ Job marked complete for row ${rowIndex}`
-    });
+    // ✅ Send a subtle follow-up (optional)
+    if (scriptResponse.data.success) {
+      await axios.post(responseUrl, {
+        response_type: "ephemeral",
+        text: `✅ Job marked complete.`
+      });
+    } else {
+      await axios.post(responseUrl, {
+        response_type: "ephemeral",
+        text: `❌ Failed to mark job complete.`
+      });
+    }
   } catch (error) {
     console.error('Slack action error:', error.message);
 
-    // Optional: send error follow-up
-    if (req.body.payload) {
+    try {
       const payload = JSON.parse(req.body.payload);
       await axios.post(payload.response_url, {
         response_type: "ephemeral",
-        text: `❌ Failed to mark job complete: ${error.message}`
+        text: `❌ Server error: ${error.message}`
       });
+    } catch (err) {
+      console.error('Failed to send error response to Slack:', err.message);
     }
 
     res.status(500).send('Internal Server Error');
