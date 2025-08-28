@@ -18,7 +18,7 @@ app.post('/mark-complete', async (req, res) => {
     res.sendStatus(200);
 
     // Forward to Google Apps Script
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbwJzEhjr-k0-rOkHdXHNUuWehU4XrU4YoT2GwicvIsEtAyhKP1AuALPSG3AAkH9q4AB/exec';
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbzSOCoHZg7BSi0KfUsIiQptsBfmzVdb0rJvD9m5rqttLp4GHkB2A5Uai8xxYABUZ78tMA/exec';
     const response = await axios.post(scriptUrl, { rowIndex });
 
     console.log('GAS response:', response.data);
