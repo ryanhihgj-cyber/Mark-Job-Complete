@@ -10,47 +10,27 @@ const slackWebhookUrl = process.env.SLACK_WEBHOOK_URL;
 app.use(cors());
 app.use(express.json());
 
-app.post('/receive-data', (req, res) => {
+app.post('/receive-data', async (req, res) => {
   // Respond immediately to avoid timeout
-  res.status(200).send('Received!');
-
-  // Handle Slack notification asynchronously
-  const payload = req.body;
-
-if (!slackWebhookUrl) {
-    console.error('Slack webhook URL is missing');
-    return;
-  }
-
-  axios.post(slackWebhookUrl, {
-    text: `New submission received:\n${JSON.stringify(payload, null, 2)}`
-  })
-  .then(() => console.log('Slack message sent successfully'))
-  .catch(err => {
-    console.error('Error sending to Slack:', err.message);
-    // Don't crash the server
-  });
-});
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-app.post('/receive-data', (req, res) => {
   res.status(200).send('Received!');
 
   const payload = req.body;
 
   if (!slackWebhookUrl) {
-    console.error('Slack webhook URL is missing');
+    console.error('SLACK_WEBHOOK_URL is not defined in environment variables.');
     return;
   }
 
-  axios.post(slackWebhookUrl, {
-    text: `New submission received:\n${JSON.stringify(payload, null, 2)}`
-  })
-  .then(() => console.log('Slack message sent successfully'))
-  .catch(err => {
-    console.error('Error sending to Slack:', err.message);
-    // Don't crash the server
-  });
+  try {
+    const response = await axios.post(slackWebhookUrl, {
+      text: `New submission received:\n${JSON.stringify(payload, null, 2)}`
+    });
+    console.log('Slack message sent successfully:', response.status);
+  } catch (error) {
+    console.error('Error sending to Slack:', error.message);
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
