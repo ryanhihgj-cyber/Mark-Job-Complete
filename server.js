@@ -17,13 +17,40 @@ app.post('/receive-data', (req, res) => {
   // Handle Slack notification asynchronously
   const payload = req.body;
 
+if (!slackWebhookUrl) {
+    console.error('Slack webhook URL is missing');
+    return;
+  }
+
   axios.post(slackWebhookUrl, {
     text: `New submission received:\n${JSON.stringify(payload, null, 2)}`
   })
   .then(() => console.log('Slack message sent successfully'))
-  .catch(err => console.error('Error sending to Slack:', err));
+  .catch(err => {
+    console.error('Error sending to Slack:', err.message);
+    // Don't crash the server
+  });
 });
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+});
+app.post('/receive-data', (req, res) => {
+  res.status(200).send('Received!');
+
+  const payload = req.body;
+
+  if (!slackWebhookUrl) {
+    console.error('Slack webhook URL is missing');
+    return;
+  }
+
+  axios.post(slackWebhookUrl, {
+    text: `New submission received:\n${JSON.stringify(payload, null, 2)}`
+  })
+  .then(() => console.log('Slack message sent successfully'))
+  .catch(err => {
+    console.error('Error sending to Slack:', err.message);
+    // Don't crash the server
+  });
 });
